@@ -1,0 +1,17 @@
+# Charybdis IRC Daemon
+#
+
+[Unit]
+Description=Charybdis Internet Relay Chat Server
+After=network.target
+Requires=network.target
+
+[Service]
+Type=simple
+User=charybdis
+Group=charybdis
+ExecStart=/usr/libexec/charybdis/charybdis-ircd -foreground
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

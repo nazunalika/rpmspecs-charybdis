@@ -1,0 +1,11 @@
+--- charybdis-charybdis-3.5.6-orig/libratbox/src/Makefile.am	2018-08-26 11:50:21.000000000 -0700
++++ charybdis-charybdis-3.5.6/libratbox/src/Makefile.am	2019-05-10 11:12:22.672829537 -0700
+@@ -42,7 +42,7 @@
+ 	arc4random.c			\
+ 	version.c
+ 	
+-libratbox_la_LDFLAGS = @SSL_LIBS@ @GNUTLS_LIBS@ @MBEDTLS_LIBS@ -avoid-version -no-undefined -export-symbols export-syms.txt
++libratbox_la_LDFLAGS = @SSL_LIBS@ @GNUTLS_LIBS@ @MBEDTLS_LIBS@ -avoid-version -no-undefined -export-symbols export-syms.txt -release charybdis
+ libratbox_la_LIBADD = @SSL_LIBS@ @GNUTLS_LIBS@ @MBEDTLS_LIBS@
+ lib_LTLIBRARIES = libratbox.la
+ 
