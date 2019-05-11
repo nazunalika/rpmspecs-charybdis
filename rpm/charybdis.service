@@ -10,7 +10,7 @@ Requires=network.target
 Type=simple
 User=charybdis
 Group=charybdis
-ExecStart=/usr/libexec/charybdis/charybdis-ircd -foreground
+ExecStart=/usr/libexec/charybdis/charybdis -foreground
 Restart=on-failure
 
 [Install]

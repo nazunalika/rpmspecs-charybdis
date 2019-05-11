@@ -1,8 +1,8 @@
 # Define global settings
 %global _hardened_build 1
-%global major_version 3
-%global minor_version 5
-%global micro_version 6
+%global major_version 4
+%global minor_version 1
+%global micro_version 1
 
 Name:		charybdis
 Version:	%{major_version}.%{minor_version}.%{micro_version}
@@ -18,9 +18,6 @@ Source2:	%{name}.tmpfiles
 Source3:	%{name}.conf
 Source4:	%{name}.README
 
-Patch1:		%{name}-%{version}-werror.patch
-Patch2:		%{name}-%{version}-ratbox.patch
-
 Provides:	%{name} = %{version}-%{release}
 
 BuildRequires:	bison
@@ -28,6 +25,7 @@ BuildRequires:	flex
 BuildRequires:	gcc
 BuildRequires:	gcc-c++
 BuildRequires:	libtool
+BuildRequires:	libtool-ltdl-devel
 BuildRequires:	pkgconfig(sqlite3)
 BuildRequires:	pkgconfig(zlib)
 BuildRequires:	pkgconfig(libcrypto)
@@ -49,11 +47,12 @@ Charybdis is an ircd used on various networks either as itself, or as the basis 
 
 %prep
 %setup -q -n %{name}-%{name}-%{version}
-%patch -P 1 -P 2 -p1
 
 %build
-%configure --enable-fhs-paths \
-	--prefix=%{_prefix} \
+/bin/sh ./autogen.sh
+%configure --prefix=%{_prefix} \
+	--with-program-prefix=charybdis- \
+	--enable-fhs-paths \
 	--with-rundir=/run \
 	--sysconfdir=%{_sysconfdir}/%{name} \
 	--with-moduledir=%{_libdir}/%{name} \
@@ -62,8 +61,8 @@ Charybdis is an ircd used on various networks either as itself, or as the basis 
 	--libexecdir=%{_libexecdir} \
 	--enable-openssl \
 	--enable-ipv6 \
-	--with-program-prefix=charybdis- \
-	--enable-epoll
+	--enable-epoll \
+	--with-shared-sqlite
 
 make %{?_smp_mflags} CHARYBDIS_VERSION="%{version}"
 
@@ -92,11 +91,15 @@ rm -rf $RPM_BUILD_ROOT
 
 # Install ircd.conf
 %{__install} -m 0660 %{SOURCE3} \
-	${RPM_BUILD_ROOT}/%{_sysconfdir}/%{name}/ircd.conf
+	${RPM_BUILD_ROOT}%{_sysconfdir}/%{name}/ircd.conf
+
+# Create log and shared state
+%{__install} -d -m 0750 ${RPM_BUILD_ROOT}%{_sharedstatedir}/%{name}
+%{__install} -d -m 0750 ${RPM_BUILD_ROOT}%{_var}/log/%{name}
 
 # Removing development libraries
 rm -rf ${RPM_BUILD_ROOT}%{_libdir}/pkgconfig
-rm     ${RPM_BUILD_ROOT}%{_libdir}/libratbox.la
+rm     ${RPM_BUILD_ROOT}%{_libdir}/*.la
 
 %pre
 %{_sbindir}/groupadd -r %{name} 2>/dev/null || :
@@ -123,7 +126,7 @@ systemd-tmpfiles --create %{name}.conf || :
 
 %files
 %defattr(-, root, root, -)
-%doc doc/Ratbox-team doc/Tao-of-IRC.940110 doc/operguide.txt doc/opermyth.txt doc/README.cidr_bans doc/services.txt doc/extban.txt doc/extended-join.txt doc/hooks.txt doc/CIDR.txt doc/Hybrid-team doc/modes.txt doc/monitor.txt README.md NEWS.md LICENSE CREDITS README.info
+%doc README.info doc/logfiles.txt doc/credits-past.txt doc/features/* doc/oper-guide/* doc/technical/* doc/modes.txt doc/server-version-info.txt CREDITS LICENSE NEWS.md README.md
 %dir %attr(0750,charybdis,charybdis) %{_var}/log/%{name}
 %dir %attr(0750,charybdis,charybdis) %{_sharedstatedir}/%{name}
 %dir %attr(0750,root,charybdis) %{_sysconfdir}/%{name}
@@ -152,7 +155,7 @@ systemd-tmpfiles --create %{name}.conf || :
 %attr(0640,charybdis,charybdis) %{_sysconfdir}/%{name}/*.example
 %attr(0640,charybdis,charybdis) %{_sysconfdir}/%{name}/reference.conf
 
-%{_mandir}/man8/charybdis-ircd.8*
+#%{_mandir}/man8/charybdis-ircd.8*
 %{_tmpfilesdir}/%{name}.conf
 
 # Excludes - commented since we're using rm instead at build
@@ -161,6 +164,10 @@ systemd-tmpfiles --create %{name}.conf || :
 #%exclude %{_libdir}/pkgconfig/libratbox.pc
 
 %changelog
+* Fri May 10 2019 Louis Abel <tucklesepk@gmail.com> - 4.1.1-1
+- Rebase to 4.1.1
+- Removed useless patches
+
 * Fri May 10 2019 Louis Abel <tucklesepk@gmail.com> - 3.5.6-1
 - Initial build of charybdis
 - Patch WError that caused compilation to fail
