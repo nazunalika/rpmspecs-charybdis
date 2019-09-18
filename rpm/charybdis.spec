@@ -2,7 +2,7 @@
 %global _hardened_build 1
 %global major_version 4
 %global minor_version 1
-%global micro_version 1
+%global micro_version 2
 
 Name:		charybdis
 Version:	%{major_version}.%{minor_version}.%{micro_version}
@@ -164,6 +164,9 @@ systemd-tmpfiles --create %{name}.conf || :
 #%exclude %{_libdir}/pkgconfig/libratbox.pc
 
 %changelog
+* Wed Sep 18 2019 Louis Abel <tucklesepk@gmail.com> - 4.1.2-1
+- Rebase to 4.1.2
+
 * Fri May 10 2019 Louis Abel <tucklesepk@gmail.com> - 4.1.1-1
 - Rebase to 4.1.1
 - Removed useless patches
